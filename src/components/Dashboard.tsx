@@ -9,6 +9,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
 import AddURLForm from "./AddURLForm";
+import TopURLs from "./TopURLs";
 
 const theme = createTheme();
 
@@ -58,10 +59,10 @@ const Dashboard = () => {
                     </Tabs>
                 </Box>
                 <TabPanel value={value} index={0}>
-                    <AddURLForm />
+                  	<AddURLForm />
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    Item Two
+					<TopURLs />
                 </TabPanel>
             </Container>
         </ThemeProvider>
