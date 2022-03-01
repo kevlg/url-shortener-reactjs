@@ -1,10 +1,11 @@
 import * as React from 'react';
+import Login from './components/Login';
 
 class App extends React.Component<{}, {}> {
 	render() {
 
 		return ( 
-			<h2>URL shortener</h2>		
+			<Login />
 		);
 	}
   
