@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import TextField from '@mui/material/TextField';
@@ -8,13 +9,47 @@ import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 
+import { axiosInstance, renewToken } from "../utils";
+
 const theme = createTheme();
 
 const AddURLForm = () => {
+    const [URL, setURL] = useState<string>("");
+    const [newURL, setNewURL] = useState<string>("");
+    const [error, setError] = useState<string>("");
+    const [isLoading, setState] = useState<boolean>(false);
+
+    const shortURL = () => {
+        if (URL.trim() !== "") {
+            setState(true);
+            setError("");
+            setNewURL("");
+
+            renewToken();
+            axiosInstance.post('url-shortener', {"URL": URL})
+            .then(response => {
+                setNewURL(response.data.data);
+            })
+            .catch(error => {
+                if (error.response) {
+                    const data: {message: string} = error.response.data;
+                    setError(data.message);
+                }
+            })
+            .finally(() => {
+                setState(false);
+            });
+        }
+    };
+
+    const updateURL = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setURL(event.target.value);
+    };
+
     return (
         <ThemeProvider theme={theme}>
         <Container component="main" maxWidth="xs">
-            <Box component="form" noValidate sx={{
+            <Box component="div" sx={{
                 marginTop: 8,
                 display: 'flex',
                 flexDirection: 'column',
@@ -31,6 +66,7 @@ const AddURLForm = () => {
                     name="url"
                     autoComplete="url"
                     type="text"
+                    onChange={updateURL}
                     autoFocus
                 />
                 <Button
@@ -38,16 +74,26 @@ const AddURLForm = () => {
                     fullWidth
                     variant="contained"
                     sx={{ mt: 3, mb: 2 }}
+                    onClick={shortURL}
+                    disabled={isLoading}
                 >
                     Short URL
                 </Button>
             </Box>
-            <Box>
-                <Alert severity="error">The URL Format is invalid</Alert>
-            </Box>
-            <Box sx={{ mt: 2 }}>
-                <Button variant="outlined">Copy URL: </Button>
-            </Box>
+            {
+                error && (
+                    <Box>
+                        <Alert severity="error">{error}</Alert>
+                    </Box>
+                )
+            }
+            {
+                newURL && (
+                <Box sx={{ mt: 2 }}>
+                    <Alert severity="success">The Short URL is: {newURL}</Alert>
+                </Box>
+            )}
+            
         </Container>
         </ThemeProvider>
     );
