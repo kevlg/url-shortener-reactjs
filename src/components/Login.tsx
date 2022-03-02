@@ -7,22 +7,40 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import { axiosInstance } from "../utils";
+import { useNavigate } from "react-router-dom";
+
 
 const theme = createTheme();
 
 const Login = () => {
+    const history = useNavigate();
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         
         const data = new FormData(event.currentTarget);
 
         const user = {
-            username: data.get('username'),
-            password: data.get('password')
+            username: data.get('username') as string,
+            password: data.get('password') as string
         };
 
-        // TODO: Call API here
-        console.log(user);
+        if (user.username.trim() !== "" && user.password.trim()) {
+            axiosInstance.post('/login', {
+                user: user.username,
+                password: user.password
+            }).then(response => {
+                if (response.data) {
+                    const { token } = response.data;
+                    sessionStorage.setItem('token', token);
+
+                    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+                    history('/dashboard');
+                }
+            }).catch(console.log);
+        }
     };
 
     return (

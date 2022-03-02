@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -14,16 +14,35 @@ import TableBody from '@mui/material/TableBody';
 
 import type { URL } from "../types/types";
 
+import { axiosInstance, renewToken } from "../utils";
+
 const theme = createTheme();
 
 const TopURLs = () => {
     const [URLs, setURLs] = useState<URL[]>([]);
 
-    // TODO: fetch endpoint
+    useEffect(() => {
+        renewToken();
+        axiosInstance.get('/top-urls').then(
+            response => {
+                if (response.data) {
+                    const { data } = response.data;
+                    const URLs: URL[] = data.map((url: URL) => ({
+                        source: url.source,
+                        visits: url.visits,
+                        shortcode: url.shortcode,
+                        newURL: url.newURL
+                    }));
+
+                    setURLs(URLs);
+                }
+            }
+        )
+    });
 
     return (
         <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="md">
+            <Container component="main" maxWidth="lg">
                 <Typography align="center">TOP 20 Visited URLs</Typography>
                 <TableContainer component={Paper} sx={{ mt: 2 }}>
                     <Table sx={{ minWidth: 650 }}>
@@ -32,15 +51,17 @@ const TopURLs = () => {
                                 <TableCell align="center">URL</TableCell>
                                 <TableCell align="center">VISITS</TableCell>
                                 <TableCell align="center">SHORTCODE</TableCell>
+                                <TableCell align="center">NEW URL</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {
                             URLs.map(url => (
-                                <TableRow>
-                                    <TableCell align="center">{url.source}</TableCell>
+                                <TableRow key={url.shortcode}>
+                                    <TableCell align="center"><a href={url.source}>{url.source}</a></TableCell>
                                     <TableCell align="center">{url.visits}</TableCell>
                                     <TableCell align="center">{url.shortcode}</TableCell>
+                                    <TableCell align="center"><a href={url.newURL}>{url.newURL}</a></TableCell>
                                 </TableRow>
                             ))
                             }

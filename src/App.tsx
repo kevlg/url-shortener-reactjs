@@ -3,7 +3,6 @@ import Login from './components/Login';
 import Dashboard from "./components/Dashboard";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
-
 export default function App() {
 	return (
 		<BrowserRouter>
@@ -20,9 +19,9 @@ export default function App() {
 };
 
 function RequireAuth({ children }: { children: JSX.Element }) {
-	// let auth = useAuth(); // verify session storage
+	let token = sessionStorage.getItem('token') || "";
   
-	if (true) {
+	if (!token) {
 	  return <Navigate to="/" replace />;
 	}
   
