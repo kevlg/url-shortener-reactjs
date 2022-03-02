@@ -38,7 +38,7 @@ const TopURLs = () => {
                 }
             }
         )
-    });
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
